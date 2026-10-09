@@ -1,0 +1,66 @@
+[
+    {
+        "name": "林子",
+        "grade": "26届",
+        "position": "产品经理",
+        "company": "Tencent腾讯",
+        "base": "深圳",
+        "studioRole": "工作室负责人&产品组长",
+        "logo": "/destination/腾讯.webp"
+    },
+    {
+        "name": "陈*",
+        "grade": "26届",
+        "position": "前端开发",
+        "company": "滴滴",
+        "base": "北京",
+        "studioRole": "前端组长",
+        "logo": "/destination/滴滴.webp"
+    },
+    {
+        "name": "龙*羽",
+        "grade": "26届",
+        "position": "前端开发",
+        "company": "美团",
+        "base": "成都",
+        "studioRole": "前端组长",
+        "note": "已转正",
+        "logo": "/destination/美团.webp"
+    },
+    {
+        "name": "熊*怡",
+        "grade": "26届",
+        "position": "前端开发",
+        "company": "Baidu百度",
+        "base": "北京",
+        "studioRole": "前端组员",
+        "logo": "/destination/百度.webp"
+    },
+    {
+        "name": "钟*廷",
+        "grade": "26届",
+        "position": "后端开发",
+        "company": "广州市运营商",
+        "base": "广州",
+        "studioRole": "后端组长",
+        "logo": "/destination/广州.webp"
+    },
+    {
+        "name": "秦*",
+        "grade": "26届",
+        "position": "保研",
+        "company": "江南大学",
+        "base": null,
+        "studioRole": "UI组长",
+        "logo": "/destination/江南大学.webp"
+    },
+    {
+        "name": "莫*",
+        "grade": "26届",
+        "position": "招商",
+        "company": "美团",
+        "base": "杭州",
+        "studioRole": "产品组员",
+        "logo": "/destination/美团.webp"
+    }
+]

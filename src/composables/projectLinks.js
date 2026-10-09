@@ -1,0 +1,30 @@
+// 项目卡片 → 目标链接：按「文件名（去掉 .webp）」索引，what-we-do.vue / what-we-do2.vue 共用。
+// 项目图文件名与 useProjectAssets 的扫描结果一致；未登记的项目 = 纯展示卡（无跳转链接）。
+// 例：「刷题神器Alevel版」只有微信小程序链接（#小程序://…），网页里打不开，故不登记为纯展示卡。
+export const PROJECT_LINKS = {
+  'chuangxin': 'https://webapp.codeghub.com/release/app/test/yl/chuangxin/index.html',
+  '法典': 'https://fadian.icu/',
+  '仓储物流实训交互': 'https://webapp.codeghub.com/release/app/engineering/cpzx/cangpeizhongxin/index.html',
+  '情景选择 · 旅游套餐匹配': 'https://webapp.codeghub.com/release/app/engineering/cpzx/cangpeizhongxin/12.pipeilianxian.html',
+  '小矿师的 PLC 接线物语': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/DragAndDropAddresses01.html',
+  '看门狗汪汪 · 继电器唤醒大冒险': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/WatchingDog02.html',
+  'JNA 小盒守护战': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/7LS6ShearerJNAInterface03.html',
+  '超级采煤侠 · 电流大冒险': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/ParameterOfCuttingCurrentFeedbackCurve04.html',
+  '嘟嘟空压机 · PLC 守护大作战': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/AirCompressor07.html',
+  '双斗提升大冒险': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/Hoist06.html',
+  '煤宝快跑': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/UfCurve09.html',
+  '压宝小卫士': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/PressureSensor10.html',
+  '小金提升机大冒险': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/HoistSafetyCircuit11.html',
+  '规程小卫士': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/ProvisionsOfTheSpecification12.html',
+  '煤流不堆栈': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/ContinuousTransportationSystemAndShearer13.html',
+  '泡泡潜水艇排水站': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/DrainageSystem14.html',
+  '运输系统启动&停机流程训练': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/LY2000ConveyingSystem/LY2000ConveyingSystem.html',
+  '贴纸日记 · JNA 过载守护战': 'https://webapp.codeghub.com/release/app/web/Meikuangjixie/index.html',
+  '川渝麻辣小吃直播间': 'https://webapp.codeghub.com/release/app/trip/triplive/index6.1.html',
+  '美食直播策划流程图': 'https://webapp.codeghub.com/release/app/trip/triplive/index5.html',
+  '直播间灯光搭建': 'https://webapp.codeghub.com/release/app/trip/triplive/index2.html',
+  '直播危机处理模拟器': 'https://webapp.codeghub.com/release/app/trip/triplive/index8.html',
+  '直播数据分析': 'https://webapp.codeghub.com/release/app/trip/triplive/index6.2.html',
+  '重庆邮电大学国际学院官网': 'https://international.cqupt.edu.cn/index.htm',
+  '重庆邮电大学远东联邦大学联合学院官网': 'https://webapp.codeghub.com/release/app/test/gjxy/party-affairs/grassroots.html',
+}
