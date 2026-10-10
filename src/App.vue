@@ -2,6 +2,8 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import gsap from 'gsap'
+import { isMobile } from './composables/useIsMobile'
+import MobileShell from './components/mobile/MobileShell.vue'
 
 const route = useRoute()
 
@@ -140,8 +142,10 @@ function onLeave(el, done) {
 </script>
 
 <template>
+  <!-- 双轨渲染：移动端（手机 + 平板大类）走独立长页 MobileShell；桌面保持原有 deck 零改动 -->
+  <MobileShell v-if="isMobile" />
   <!-- 同屏容器：让多页绝对定位叠放，向上「翻页」不撑出滚动条 -->
-  <div class="relative h-screen w-screen overflow-hidden">
+  <div v-else class="relative h-screen w-screen overflow-hidden">
     <router-view v-slot="{ Component }">
       <transition :css="false" @enter="onEnter" @leave="onLeave">
         <!-- 用真实 <div> 包装层承载 key：每个顶层页面有独立容器节点，进/离动画各作用在不同节点上，
