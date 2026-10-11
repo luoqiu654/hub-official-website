@@ -1,5 +1,11 @@
 <script setup>
-// 移动端 · 成长体系区块：合并桌面 grow / grow-community / grow-service 三页内容为纵向信息流
+import { ref, onMounted, onUnmounted } from 'vue'
+import { mountReveal, killReveal } from '../../composables/useMobileReveal'
+
+const sectionRef = ref(null)
+let revealTween = null
+onMounted(() => { revealTween = mountReveal(sectionRef.value) })
+onUnmounted(() => killReveal(revealTween))
 
 // 成长路径（桌面 grow-main 4 张卡片）
 const growthSteps = [
@@ -64,8 +70,8 @@ const serviceFooter = '面向互联网求职者的职业成长服务 · HUB Care
 </script>
 
 <template>
-  <section id="grow" class="px-5 py-14 box-border" style="background: linear-gradient(180deg, #fff8e0 0%, #fafafa 45%, #eaf5f0 100%)">
-    <div class="mb-6 text-center">
+  <section id="grow" ref="sectionRef" class="px-5 py-14 box-border" style="background: linear-gradient(180deg, #fff8e0 0%, #fafafa 45%, #eaf5f0 100%)">
+    <div class="reveal mb-6 text-center">
       <h2 class="text-[26px] font-bold text-[#033B37]">成长体系</h2>
       <p class="mt-1 text-[13px] tracking-widest text-[#2f8a84]">GROWTH</p>
     </div>
@@ -76,7 +82,7 @@ const serviceFooter = '面向互联网求职者的职业成长服务 · HUB Care
       <p class="mb-4 text-[13px] leading-relaxed text-[#17514b]">在真实项目中成长，将能力转化为未来职业竞争力</p>
       <div class="space-y-3">
         <article v-for="s in growthSteps" :key="s.title"
-          class="rounded-2xl border-[3px] border-white p-4 shadow-md ring-1"
+          class="reveal rounded-2xl border-[3px] border-white p-4 shadow-md ring-1"
           :class="s.tone === 'yellow' ? 'bg-[#FFF8E0] ring-[#F7D460]' : 'bg-[#EBF5F0] ring-[#0A665E]'">
           <h4 class="text-[16px] font-bold" :class="s.tone === 'yellow' ? 'text-[#917109]' : 'text-[#033B37]'">{{ s.title }}</h4>
           <p class="mt-1 text-[13px] font-medium leading-relaxed" :class="s.tone === 'yellow' ? 'text-[#917109]' : 'text-[#033B37]'">{{ s.desc }}</p>
@@ -96,7 +102,7 @@ const serviceFooter = '面向互联网求职者的职业成长服务 · HUB Care
       <h3 class="mb-1 text-[18px] font-semibold text-[#033B37]">{{ community.title }}</h3>
       <p class="mb-4 text-[13px] text-[#0A665F]">{{ community.subtitle }}</p>
 
-      <article class="mb-3 rounded-2xl border-[3px] border-white bg-[#EBF5F0]/80 p-4 shadow-md ring-1 ring-[#0A665F]/30">
+      <article class="reveal mb-3 rounded-2xl border-[3px] border-white bg-[#EBF5F0]/80 p-4 shadow-md ring-1 ring-[#0A665F]/30">
         <h4 class="text-[16px] font-bold text-[#033B37]">{{ community.process.title }}</h4>
         <p class="mt-2 text-[13px] font-medium text-[#033B37]">流程：</p>
         <ol class="mt-1 space-y-1.5">
@@ -107,14 +113,14 @@ const serviceFooter = '面向互联网求职者的职业成长服务 · HUB Care
         </ol>
       </article>
 
-      <article class="mb-3 rounded-2xl border-[3px] border-white bg-[#FFF8E0]/80 p-4 shadow-md ring-1 ring-[#F7D460]">
+      <article class="reveal mb-3 rounded-2xl border-[3px] border-white bg-[#FFF8E0]/80 p-4 shadow-md ring-1 ring-[#F7D460]">
         <h4 class="text-[16px] font-bold text-[#917109]">{{ community.gains.title }}</h4>
         <ul class="mt-2 space-y-1.5">
           <li v-for="g in community.gains.items" :key="g" class="text-[13px] leading-[1.6] text-[#917109]">「{{ g }}」</li>
         </ul>
       </article>
 
-      <article class="rounded-2xl border-[3px] border-white bg-[#EBF5F0]/80 p-4 shadow-md ring-1 ring-[#0A665F]/30">
+      <article class="reveal rounded-2xl border-[3px] border-white bg-[#EBF5F0]/80 p-4 shadow-md ring-1 ring-[#0A665F]/30">
         <h4 class="text-[16px] font-bold text-[#033B37]">{{ community.why.title }}</h4>
         <div v-for="f in community.why.fields" :key="f.tag" class="mt-3">
           <span class="text-[14px] font-bold text-[#0A665F]">{{ f.tag }}：</span>
@@ -130,7 +136,7 @@ const serviceFooter = '面向互联网求职者的职业成长服务 · HUB Care
       <h3 class="mb-4 text-[18px] font-semibold text-[#033B37]">求职增值服务</h3>
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <article v-for="sv in services" :key="sv.title"
-          class="rounded-2xl border-[3px] border-white p-4 shadow-md ring-1"
+          class="reveal rounded-2xl border-[3px] border-white p-4 shadow-md ring-1"
           :class="sv.title === '简历精修' || sv.title === '模拟面试' ? 'bg-[#FFF8E0] ring-[#F7D460]' : 'bg-[#EBF5F0] ring-[#0A665F]/30'">
           <h4 class="text-[16px] font-bold" :class="sv.title === '简历精修' || sv.title === '模拟面试' ? 'text-[#917109]' : 'text-[#033B37]'">{{ sv.title }}</h4>
           <p class="mt-2 text-[13px] font-medium text-[#033B37]">{{ sv.label }}</p>

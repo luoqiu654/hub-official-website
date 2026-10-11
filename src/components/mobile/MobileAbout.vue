@@ -1,5 +1,12 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
 import { publicUrl } from '../../composables/publicUrl'
+import { mountReveal, killReveal } from '../../composables/useMobileReveal'
+
+const sectionRef = ref(null)
+let revealTween = null
+onMounted(() => { revealTween = mountReveal(sectionRef.value) })
+onUnmounted(() => killReveal(revealTween))
 
 // 文案与桌面 about-us / about-us2 保持一致（同一数据事实）
 const intro = [
@@ -22,26 +29,26 @@ const features = [
 </script>
 
 <template>
-  <section id="about" class="px-5 py-14 box-border" style="background: linear-gradient(180deg, #fafafa 0%, #e2f5f0 100%)">
+  <section id="about" ref="sectionRef" class="px-5 py-14 box-border" style="background: linear-gradient(180deg, #fafafa 0%, #e2f5f0 100%)">
     <!-- 区块标题 -->
-    <div class="mb-6 text-center">
+    <div class="reveal mb-6 text-center">
       <h2 class="text-[26px] font-bold text-[#033B37]">关于我们</h2>
       <p class="mt-1 text-[13px] tracking-widest text-[#2f8a84]">ABOUT US</p>
     </div>
 
     <!-- 引言 -->
-    <blockquote class="mx-auto max-w-[560px] rounded-2xl border border-[#F7D460]/70 bg-[#FFF8E0] px-5 py-4 text-center text-[14px] leading-relaxed font-medium text-[#033B37]">
+    <blockquote class="reveal mx-auto max-w-[560px] rounded-2xl border border-[#F7D460]/70 bg-[#FFF8E0] px-5 py-4 text-center text-[14px] leading-relaxed font-medium text-[#033B37]">
       “探索技术边界，创造互联网价值；技术连接教育，实践创造未来”
     </blockquote>
 
     <!-- 特性卡片：图片原样，纵向堆叠 -->
-    <div class="mt-8 flex flex-col items-center gap-6">
+    <div class="reveal mt-8 flex flex-col items-center gap-6">
       <img v-for="src in features" :key="src" :src="src" alt="工作室特性" class="w-full max-w-[520px] h-auto rounded-2xl" loading="lazy" />
     </div>
 
     <!-- 简介 / 历史 / 现状 -->
     <div class="mt-10 space-y-6">
-      <section class="rounded-2xl bg-white/80 p-5 shadow-sm border border-[#0A665F]/15">
+      <section class="reveal rounded-2xl bg-white/80 p-5 shadow-sm border border-[#0A665F]/15">
         <h3 class="mb-2 text-[18px] font-semibold text-[#033B37]">工作室简介</h3>
         <p v-for="(p, i) in intro" :key="i" class="mt-2 text-[14px] leading-[1.8] text-[#033B37]">{{ p }}</p>
       </section>

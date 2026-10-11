@@ -1,6 +1,12 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { publicUrl } from '../../composables/publicUrl'
+import { mountReveal, killReveal } from '../../composables/useMobileReveal'
+
+const sectionRef = ref(null)
+let revealTween = null
+onMounted(() => { revealTween = mountReveal(sectionRef.value) })
+onUnmounted(() => killReveal(revealTween))
 
 // 联系渠道（与桌面 contact-us 同源数据：邮箱 / 小红书 / 微信群二维码）
 const channels = [
@@ -64,8 +70,8 @@ function handleClick(c) {
 </script>
 
 <template>
-  <section id="contact" class="px-5 py-14 box-border" style="background: linear-gradient(180deg, #fafafa 0%, #e4f3ec 100%)">
-    <div class="mb-6 text-center">
+  <section id="contact" ref="sectionRef" class="px-5 py-14 box-border" style="background: linear-gradient(180deg, #fafafa 0%, #e4f3ec 100%)">
+    <div class="reveal mb-6 text-center">
       <h2 class="text-[26px] font-bold text-[#033B37]">联系我们</h2>
       <p class="mt-1 text-[13px] tracking-widest text-[#2f8a84]">CONTACT</p>
     </div>
@@ -75,7 +81,7 @@ function handleClick(c) {
         v-for="c in channels"
         :key="c.name"
         type="button"
-        class="flex w-full items-center gap-4 rounded-2xl border-[3px] border-white bg-white/90 p-4 text-left shadow-md ring-1 ring-[#033B37]/20 active:scale-[0.98] transition-transform"
+        class="reveal flex w-full items-center gap-4 rounded-2xl border-[3px] border-white bg-white/90 p-4 text-left shadow-md ring-1 ring-[#033B37]/20 active:scale-[0.98] transition-transform"
         @click="handleClick(c)"
       >
         <img :src="c.src" :alt="c.label" class="h-12 w-12 shrink-0 object-contain" loading="lazy" />
