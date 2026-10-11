@@ -1,52 +1,33 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import gsap from 'gsap'
 import { publicUrl } from '../../composables/publicUrl'
 import { mountReveal, killReveal } from '../../composables/useMobileReveal'
 
 const sectionRef = ref(null)
 let revealTween = null
-onMounted(() => { revealTween = mountReveal(sectionRef.value) })
-onUnmounted(() => killReveal(revealTween))
 
-// 联系渠道（与桌面 contact-us 同源数据：邮箱 / 小红书 / 微信群二维码）
-const channels = [
-  {
-    name: 'email',
-    label: '电子邮箱',
-    value: '1950708010@qq.com',
-    src: publicUrl('/contact-us/email.webp'),
-    email: '1950708010@qq.com',
-    desc: '点击复制邮箱',
-  },
-  {
-    name: 'redbook',
-    label: '小红书',
-    value: '@HUB官方账号',
-    src: publicUrl('/contact-us/redbook.webp'),
+// 三个联系图标：分别绕外层三个同心圆运动，半径/周期不同 → 速度不同
+const iconOrbits = [
+  { name: 'email', src: publicUrl('/contact-us/email.webp'), radius: 82, period: 20, start: 0.00, size: 44,
+    email: '1950708010@qq.com', alt: '点击复制邮箱' },
+  { name: 'redbook', src: publicUrl('/contact-us/redbook.webp'), radius: 112, period: 14, start: 0.33, size: 44,
     link: 'https://www.xiaohongshu.com/user/profile/67c0f46a0000000006010608?xsec_token=AB1ZXpyIYDmmIreEIYUSm6PUBgLFzy2pYYuVBcv79q0kI%3D&xsec_source=pc_search',
-    desc: '点击进入官方账号',
-  },
-  {
-    name: 'wechat',
-    label: '微信群',
-    value: '扫码加入工作室微信群',
-    src: publicUrl('/contact-us/wechat.webp'),
-    qr: publicUrl('/contact-us/微信群.jpg'),
-    desc: '点击查看二维码',
-  },
+    alt: '点击进入官方账号' },
+  { name: 'wechat', src: publicUrl('/contact-us/wechat.webp'), radius: 142, period: 17, start: 0.66, size: 44,
+    qr: publicUrl('/contact-us/微信群.jpg') },
 ]
+const iconEls = {}
+let tweens = []
+const rocketEl = ref(null)
 
-// 复制邮箱（含非安全上下文兜底）
+function openContactLink(link) { if (link) window.open(link, '_blank', 'noopener,noreferrer') }
 const copiedTip = ref('')
 let copyTimer = null
 function legacyCopy(text) {
   const ta = document.createElement('textarea')
-  ta.value = text
-  ta.setAttribute('readonly', '')
-  ta.style.position = 'fixed'
-  ta.style.opacity = '0'
-  document.body.appendChild(ta)
-  ta.select()
+  ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'
+  document.body.appendChild(ta); ta.select()
   try { document.execCommand('copy') } catch {}
   document.body.removeChild(ta)
 }
@@ -58,58 +39,133 @@ async function copyEmail(email) {
   clearTimeout(copyTimer)
   copyTimer = setTimeout(() => { copiedTip.value = '' }, 1600)
 }
-
-// 微信群二维码弹层
 const qrVisible = ref(false)
 const qrSrc = ref('')
-function handleClick(c) {
-  if (c.link) { window.open(c.link, '_blank', 'noopener,noreferrer'); return }
-  if (c.email) { copyEmail(c.email); return }
-  if (c.qr) { qrSrc.value = c.qr; qrVisible.value = true }
+function openQr(src) { qrSrc.value = src; qrVisible.value = true }
+function closeQr() { qrVisible.value = false }
+function handleIconClick(ic) {
+  if (ic.link) { openContactLink(ic.link); return }
+  if (ic.email) { copyEmail(ic.email); return }
+  if (ic.qr) { openQr(ic.qr) }
 }
+
+// 火箭：飞入最内圆后顺时针绕圈
+const R_INNER = 52
+const ORBIT_PERIOD = 14
+function makeSteer(el) {
+  let px = 0, py = 0, init = false
+  return (x, y) => {
+    if (!init) { px = x; py = y; init = true; return }
+    const dx = x - px, dy = y - py
+    if (dx * dx + dy * dy > 0.25) {
+      gsap.set(el, { rotation: Math.atan2(dy, dx) * 180 / Math.PI })
+      px = x; py = y
+    }
+  }
+}
+function startRocket(el) {
+  const steer = makeSteer(el)
+  gsap.set(el, { x: 0, y: -200 })
+  gsap.to(el, {
+    x: 0, y: -R_INNER, duration: 1.2, ease: 'power2.out', delay: 0.3,
+    onUpdate: function() {
+      const x = Number(gsap.getProperty(el, 'x')), y = Number(gsap.getProperty(el, 'y'))
+      steer(x, y)
+    },
+    onComplete: () => {
+      const ang = { v: -Math.PI / 2 }
+      const place = () => {
+        const x = R_INNER * Math.cos(ang.v), y = R_INNER * Math.sin(ang.v)
+        gsap.set(el, { x, y }); steer(x, y)
+      }
+      place()
+      const tw = gsap.to(ang, { v: -Math.PI / 2 + Math.PI * 2, duration: ORBIT_PERIOD, ease: 'none', repeat: -1, onUpdate: place })
+      tweens.push(tw)
+    },
+  })
+}
+
+onMounted(() => {
+  revealTween = mountReveal(sectionRef.value)
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  iconOrbits.forEach((o) => {
+    const el = iconEls[o.name]
+    if (!el) return
+    const angle = { t: o.start }
+    const place = () => {
+      const rad = angle.t * Math.PI * 2
+      gsap.set(el, { x: o.radius * Math.cos(rad), y: o.radius * Math.sin(rad) })
+    }
+    place()
+    if (!reduced) {
+      const tw = gsap.to(angle, { t: o.start + 1, duration: o.period, ease: 'none', repeat: -1, onUpdate: place })
+      tweens.push(tw)
+    }
+  })
+
+  if (rocketEl.value && !reduced) startRocket(rocketEl.value)
+})
+
+onUnmounted(() => {
+  killReveal(revealTween)
+  if (copyTimer) clearTimeout(copyTimer)
+  tweens.forEach((t) => t.kill())
+  tweens = []
+})
 </script>
 
 <template>
-  <section id="contact" ref="sectionRef" class="px-5 py-14 box-border" style="background: linear-gradient(180deg, #fafafa 0%, #e4f3ec 100%)">
-    <div class="reveal mb-6 text-center">
+  <section id="contact" ref="sectionRef" class="px-5 py-14 box-border overflow-hidden" style="background: linear-gradient(180deg, #fafafa 0%, #e4f3ec 100%)">
+    <div class="reveal mb-4 text-center">
       <h2 class="text-[26px] font-bold text-[#033B37]">联系我们</h2>
-      <p class="mt-1 text-[13px] tracking-widest text-[#2f8a84]">CONTACT</p>
+      <p class="mt-1 text-[13px] tracking-widest text-[#2f8a84]">CONTACT US</p>
     </div>
 
-    <div class="mx-auto max-w-[560px] space-y-4">
-      <button
-        v-for="c in channels"
-        :key="c.name"
-        type="button"
-        class="reveal flex w-full items-center gap-4 rounded-2xl border-[3px] border-white bg-white/90 p-4 text-left shadow-md ring-1 ring-[#033B37]/20 active:scale-[0.98] transition-transform"
-        @click="handleClick(c)"
-      >
-        <img :src="c.src" :alt="c.label" class="h-12 w-12 shrink-0 object-contain" loading="lazy" />
-        <span class="min-w-0 flex-1">
-          <span class="block text-[15px] font-bold text-[#033B37]">{{ c.label }}</span>
-          <span class="mt-0.5 block truncate text-[13px] text-[#17514b]">{{ c.desc }}</span>
-        </span>
-        <span class="shrink-0 rounded-full bg-[#EAF5F0] px-3 py-1 text-[12px] font-bold text-[#0A665F]">点击</span>
-      </button>
+    <!-- 同心圆轨道舞台 -->
+    <div class="orbit-stage relative mx-auto mt-2 h-[340px] w-[340px]">
+      <svg class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+        width="340" height="340" viewBox="0 0 340 340">
+        <g fill="none" stroke="#033B37" stroke-width="2" stroke-linecap="round" stroke-dasharray="0 14">
+          <circle cx="170" cy="170" r="52" />
+          <circle cx="170" cy="170" r="82" />
+          <circle cx="170" cy="170" r="112" />
+          <circle cx="170" cy="170" r="142" />
+        </g>
+      </svg>
+
+      <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+        <p class="text-[15px] font-bold text-[#033B37]">CQUPTHUB</p>
+        <p class="mt-0.5 text-[10px] tracking-widest text-[#0A665F]">CONNECT</p>
+      </div>
+
+      <img v-for="ic in iconOrbits" :key="ic.name"
+        :src="ic.src" :alt="ic.alt || ''"
+        :ref="(el) => (iconEls[ic.name] = el)"
+        @click="handleIconClick(ic)"
+        class="contact-icon absolute left-1/2 top-1/2 z-10 cursor-pointer active:scale-90 transition-transform"
+        :style="{ width: ic.size + 'px', height: ic.size + 'px', marginLeft: -ic.size / 2 + 'px', marginTop: -ic.size / 2 + 'px' }"
+      />
+
+      <img ref="rocketEl" src="/grow/rocket.webp" alt=""
+        class="absolute left-1/2 top-1/2 z-20 pointer-events-none"
+        style="width: 52px; height: 52px; margin-left: -26px; margin-top: -26px" />
     </div>
 
-    <p class="mt-8 text-center text-[13px] text-[#0A665F]">CQUPTHUB · 重庆邮电大学工作室</p>
+    <Transition name="tip-fade">
+      <div v-if="copiedTip"
+        class="fixed left-1/2 top-20 z-50 -translate-x-1/2 rounded-full bg-black/70 px-4 py-2 text-[13px] text-white whitespace-nowrap">
+        {{ copiedTip }}
+      </div>
+    </Transition>
 
-    <!-- 复制成功提示 -->
-    <div v-if="copiedTip"
-      class="fixed left-1/2 top-14 z-50 -translate-x-1/2 rounded-full bg-black/70 px-4 py-2 text-sm text-white whitespace-nowrap">
-      {{ copiedTip }}
-    </div>
-
-    <!-- 微信群二维码弹层：点遮罩关闭 -->
     <Transition name="qr-fade">
-      <div v-if="qrVisible" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
-        @click="qrVisible = false">
-        <div class="relative max-w-[80vw] rounded-2xl bg-white p-4 shadow-2xl" @click.stop>
-          <img :src="qrSrc" alt="微信群二维码" class="max-h-[60vh] w-auto rounded-xl" />
-          <button type="button"
-            class="absolute -right-2 -top-2 flex h-9 w-9 items-center justify-center rounded-full bg-white text-lg font-bold text-[#033B37] shadow-md"
-            aria-label="关闭二维码" @click="qrVisible = false">×</button>
+      <div v-if="qrVisible" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 cursor-pointer"
+        @click="closeQr">
+        <div class="relative pointer-events-auto" @click.stop>
+          <img :src="qrSrc" alt="微信群二维码" class="max-w-[80vw] max-h-[70vh] rounded-2xl shadow-2xl">
+          <button class="absolute -top-3 -right-3 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black text-xl font-bold shadow-lg cursor-pointer"
+            @click="closeQr">×</button>
         </div>
       </div>
     </Transition>
@@ -117,6 +173,8 @@ function handleClick(c) {
 </template>
 
 <style scoped>
+.tip-fade-enter-active, .tip-fade-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+.tip-fade-enter-from, .tip-fade-leave-to { opacity: 0; transform: translateX(-50%) translateY(-8px); }
 .qr-fade-enter-active, .qr-fade-leave-active { transition: opacity 0.2s ease; }
 .qr-fade-enter-from, .qr-fade-leave-to { opacity: 0; }
 </style>
